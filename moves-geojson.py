@@ -8,7 +8,12 @@ import _keys
 
 app = Flask(__name__)
 
-Moves = MovesClient(_keys.client_id, _keys.client_secret)
+app.secret_key = os.environ['app_secret']
+
+client_id = os.environ['client_id']
+client_secret = os.environ['client_secret']
+
+Moves = MovesClient(client_id, client_secret)
 
 @app.route("/")
 def index():
@@ -81,8 +86,6 @@ def geojson_move(segment):
         features.append(geojson)
 
     return features
-
-app.secret_key = _keys.secret_key
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=7771, debug=True)
