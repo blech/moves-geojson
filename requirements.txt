@@ -5,4 +5,4 @@ Werkzeug==0.9.4
 itsdangerous==0.23
 requests==2.1.0
 wsgiref==0.1.2
-git+git@github.com:lysol/moves.git
+git+git@github.com/lysol/moves.git
