@@ -1,0 +1,3 @@
+[submodule "moves"]
+	path = moves
+	url = git@github.com:lysol/moves.git
