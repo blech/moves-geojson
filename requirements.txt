@@ -5,4 +5,4 @@ Werkzeug==0.9.4
 itsdangerous==0.23
 requests==2.1.0
 wsgiref==0.1.2
--e git+git@github.com:lysol/moves.git@597ae329679fcc3a5d516bcbded86c09f8fcb834#egg=moves-dev
+git+git@github.com:lysol/moves.git
