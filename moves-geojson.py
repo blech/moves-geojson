@@ -1,10 +1,10 @@
-from flask import Flask, url_for, request, session, redirect
-from moves import MovesClient
+import os
 
 from datetime import datetime, timedelta
 from json import dumps
 
-import _keys
+from flask import Flask, url_for, request, session, redirect
+from moves import MovesClient
 
 app = Flask(__name__)
 
@@ -22,7 +22,7 @@ def index():
         auth_url = Moves.build_oauth_url(oauth_return_url)
         return 'Authorize this application: <a href="%s">%s</a>' % \
             (auth_url, auth_url)
-    return redirect(url_for('show_info'))
+    return redirect(url_for('geojson'))
 
 
 @app.route("/oauth_return")
@@ -55,6 +55,9 @@ def show_info():
 
 @app.route("/geojson")
 def geojson():
+    if 'token' not in session:
+        return redirect("/")
+
     today = datetime.now().strftime('%Y%m%d')
     info = Moves.user_storyline_daily(today, trackPoints={'true'}, access_token=session['token'])
     
