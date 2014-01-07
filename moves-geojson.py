@@ -6,6 +6,8 @@ from json import dumps
 from flask import Flask, Response, redirect, render_template, request, session, url_for
 from moves import MovesClient
 
+import memcache
+
 app = Flask(__name__)
 
 app.secret_key = os.environ['app_secret']
@@ -14,6 +16,8 @@ client_id = os.environ['client_id']
 client_secret = os.environ['client_secret']
 
 Moves = MovesClient(client_id, client_secret)
+
+# mc = memcache.Client(['127.0.0.1:11211'], debug=0)
 
 @app.route("/")
 def index():
