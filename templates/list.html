@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}moves.husk.org. days.{% endblock %}
+{% block style %}
+    h1 { background-image: url(/static/whitebg50pc.png); padding: 10px; opacity: 1; display: inline; position: relative; left: -10px; }
+    .me a { color: rgb(255, 102, 255); background-color: #fff; }
+    span.them a { color: rgb(102, 204, 255); background-color: #fff; }
+{% endblock %}
+{% block content %}    
+  <div id="content">
+
+    <p>Hi. You've been using Moves for {{ days|count }} days:</p>
+    
+    <ul>{% for day in days %}
+        <li><a href="/geojson/{{ day.strftime('%Y-%m-%d') }}">{{ day.strftime('%e %B %Y') }}</a></li>
+    {% endfor %}</ul>
+
+  </div>
+{% endblock %}

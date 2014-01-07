@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}intersect.husk.org. start.{% endblock %}
+{% block content %}    
+  <div id="content">
+    <h2>Signed in as <a href="https://www.twitter.com/{{ user.screen_name }}">{{ user.screen_name }}</a>.</h2>
+
+    <div id="blurb" style="margin-top:16px; width: 500px; color: #666;">
+      <form action="/" method="POST">
+        <p>Enter the Twitter username to find an intersection:</p>
+        <input type="text" name="them">
+        <input type="submit" value="Go">
+      </form>
+      
+      <br>
+      <p>This app will find the intersection between your followers and those of another person. It's 
+        handy for those times when you want an idea of how many people will see an @reply, or if 
+        everyone who's likely to care will already have seen that witty <i>bon mot</i> you were planning 
+        to retweet.</p>
+        
+      <p>It's different from almost every other app like this that I've seen in that it's written 
+        from the start to use Twitter authentication, which means that people with private accounts 
+        (like, er, me) can use it.</p>
+        
+      <p>I hope you find it useful.</p>
+        
+      <p>- Paul Mison (<a href="https://www.twitter.com/blech">@blech</a>). View <a href="https://github.com/blech/intersect-pm/">source</a> on github.<br>
+         - with thanks to <a href="https://www.twitter.com/fionamiller">@fionamiller</a>, <a href="https://twitter.com/garrettc">@garrettc</a>, 
+           and <a href="https://twitter.com/tominsam">@tominsam</a> for design advice</p>
+      
+    </div>
+  </div>
+{% endblock %}

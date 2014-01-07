@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}intersect.husk.org. internal server error.{% endblock %}
+{% block content %}    
+  <div id="content">
+    <h2>500 server error</h2>
+
+    <div id="blurb">
+        {% if type == "twitter" %}
+        <p>There was a problem with Twitter. They said: '{{ error }}'.<br>
+        {% else %}
+        <p>Something has gone slightly amiss in the guts of this application. Sorry about that.<br>
+        {% endif %}
+            Go <a href="/">home</a>.</p>
+    </div>
+  </div>
+{% endblock %}
