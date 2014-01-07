@@ -125,6 +125,7 @@ def get_dates_range(firstDate):
 
 def geojson_move(segment):
     features = []
+    lookup = {'wlk': 'Walking', 'trp': 'Transport', 'run': 'Running', 'cyc': 'Cycling'}
 
     for activity in segment['activities']:
         trackpoints = activity['trackPoints']
@@ -134,6 +135,12 @@ def geojson_move(segment):
         for key in activity.keys():
             if key != 'trackPoints':
                 geojson['properties'][key] = activity[key]
+
+        # add a name and description
+        geojson['properties']['name'] = lookup[activity['activity']]
+        description = "%s for %.1f km, taking %i minutes" % (lookup[activity['activity']], 
+                        float(activity['distance'])/1000, float(activity['duration'])/60)
+        geojson['properties']['description'] = description
         
         features.append(geojson)
 

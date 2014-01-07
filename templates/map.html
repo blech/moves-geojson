@@ -48,7 +48,7 @@
     $.getJSON($('link[rel="geojson"]').attr("href"), function(data) {
         var geojson = L.geoJson(data, {
             onEachFeature: function (feature, layer) {
-              layer.bindPopup(feature.properties.startTime);
+              layer.bindPopup(feature.properties.description);
             },
             style: function(feature) {
                 switch (feature.properties.activity) {
