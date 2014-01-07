@@ -1,1 +1,9 @@
+# Finder metadata
 .DS_Store
+# virtualenv
+/.Python
+/.env
+/bin/
+/include/
+/lib/
+
