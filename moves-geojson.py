@@ -3,7 +3,7 @@ import os
 from datetime import date, datetime, timedelta
 from json import dumps
 
-from flask import Flask, url_for, request, session, redirect, render_template
+from flask import Flask, Response, redirect, render_template, request, session, url_for
 from moves import MovesClient
 
 app = Flask(__name__)
@@ -99,7 +99,10 @@ def geojson(date):
 
     geojson = {'type': 'FeatureCollection', 'features': features}
 
-    return dumps(geojson)
+    filename = "moves-%s.geojson" % date
+    headers = (('Content-Disposition', 'attachment; filename="%s"' % filename),)
+
+    return Response(dumps(geojson), headers=headers, content_type='application/geo+json')
 
 ### utilities
 
