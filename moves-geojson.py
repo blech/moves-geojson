@@ -18,7 +18,7 @@ Moves = MovesClient(client_id, client_secret)
 @app.route("/")
 def index():
     if 'token' not in session:
-        return render_template("index.html")
+        return render_template("auth.html")
 
     return redirect(url_for('list'))
 
