@@ -163,12 +163,12 @@ ul.nav li {
   margin-left: 0;
 }
 
-ul.nav li a {
+/* ul.nav li a {
   width: 96px;
   display: block;
   float: left;
   text-align: left;
-}
+} */
 
 ul.nav li a:hover {
   color: #00f;
