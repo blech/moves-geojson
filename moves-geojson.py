@@ -73,6 +73,13 @@ def show_info():
         "<br /><a href=\"%s\">Logout</a>" % url_for('logout')
 
 
+@app.route("/map/<date>")
+def map(date):
+    if 'token' not in session:
+        return redirect(url_for('index'))
+
+    return render_template("map.html", date=date)
+
 @app.route("/geojson/<date>")
 def geojson(date):
     if 'token' not in session:
