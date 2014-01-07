@@ -19,6 +19,8 @@ Moves = MovesClient(client_id, client_secret)
 
 # mc = memcache.Client(['127.0.0.1:11211'], debug=0)
 
+### main methods
+
 @app.route("/")
 def index():
     if 'token' not in session:
@@ -73,7 +75,7 @@ def show_info():
     profile = Moves.user_profile(access_token=session['token'])
     response = 'User ID: %s<br />First day using Moves: %s' % \
         (profile['userId'], profile['profile']['firstDate'])
-    return response + "<br /><a href=\"%s\">Info for today</a>" % url_for('today') + \
+    return response + "<br /><a href=\"%s\">Info for today</a>" % url_for('map') + \
         "<br /><a href=\"%s\">Logout</a>" % url_for('logout')
 
 
@@ -82,6 +84,7 @@ def map(date):
     if 'token' not in session:
         return redirect(url_for('index'))
 
+    # TODO validate date
     return render_template("map.html", date=date)
 
 @app.route("/geojson/<date>")
@@ -89,11 +92,12 @@ def geojson(date):
     if 'token' not in session:
         return redirect(url_for('index'))
 
+    # TODO validate date
     api_date = date.replace('-', '')
     info = Moves.user_storyline_daily(api_date, trackPoints={'true'}, access_token=session['token'])
-    
+
     features = []
-    
+
     for segment in info[0]['segments']:
         if segment['type'] == 'place':
             # features.append(geojson_place(segment)
@@ -107,6 +111,7 @@ def geojson(date):
     headers = (('Content-Disposition', 'attachment; filename="%s"' % filename),)
 
     return Response(dumps(geojson), headers=headers, content_type='application/geo+json')
+
 
 ### utilities
 
@@ -152,6 +157,17 @@ def geojson_move(segment):
         features.append(geojson)
 
     return features
+
+
+### error handlers
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+    
+@app.errorhandler(500)
+def internal_error(e):
+    return render_template('500.html'), 500
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=7771, debug=True)
