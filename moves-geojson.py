@@ -3,6 +3,7 @@ import os
 from datetime import date, datetime, timedelta
 from json import dumps
 
+from dateutil.relativedelta import relativedelta
 from flask import Flask, Response, redirect, render_template, request, session, url_for
 from moves import MovesClient
 
@@ -58,26 +59,17 @@ def list():
 
     profile = Moves.user_profile(access_token=session['token'])
 
-    days = get_dates_range(profile['profile']['firstDate'])
+    summary = Moves.user_summary_daily(pastDays=30, access_token=session['token'])
+    summary.reverse()
 
-    return render_template("list.html", profile=profile, days=days)
+    for day in summary:
+        day['dateObj'] = make_date_from(day['date'])
+        day['summary'] = make_summaries(day)
 
-#     response = 'User ID: %s<br />First day using Moves: %s' % \
-#         (profile['userId'], profile['profile']['firstDate'])
-#     return response + "<br /><a href=\"%s\">Info for today</a>" % url_for('today') + \
-#         "<br /><a href=\"%s\">Logout</a>" % url_for('logout')
+    using_for = get_days_using(profile['profile']['firstDate'], summary[-1]['date'])
+    months = get_month_range(profile['profile']['firstDate'], summary[-1]['date'])
 
-@app.route("/info")
-def show_info():
-    if 'token' not in session:
-        return redirect(url_for('index'))
-
-    profile = Moves.user_profile(access_token=session['token'])
-    response = 'User ID: %s<br />First day using Moves: %s' % \
-        (profile['userId'], profile['profile']['firstDate'])
-    return response + "<br /><a href=\"%s\">Info for today</a>" % url_for('map') + \
-        "<br /><a href=\"%s\">Logout</a>" % url_for('logout')
-
+    return render_template("list.html", profile=profile, summary=summary, months=months, days=using_for)
 
 @app.route("/map/<date>")
 def map(date):
@@ -112,15 +104,30 @@ def geojson(date):
 
     return Response(dumps(geojson), headers=headers, content_type='application/geo+json')
 
+@app.route("/info")
+def show_info():
+    if 'token' not in session:
+        return redirect(url_for('index'))
+
+    profile = Moves.user_profile(access_token=session['token'])
+    response = 'User ID: %s<br />First day using Moves: %s' % \
+        (profile['userId'], profile['profile']['firstDate'])
+    return response + "<br /><a href=\"%s\">Info for today</a>" % url_for('map') + \
+        "<br /><a href=\"%s\">Logout</a>" % url_for('logout')
+
+@app.route("/test")
+def show_test():
+    if 'token' not in session:
+        return redirect(url_for('index'))
+
+
+    return "%r" % summary
+
 
 ### utilities
 
-def get_dates_range(firstDate):
-    year = int(firstDate[0:4])
-    month = int(firstDate[4:6])
-    day = int(firstDate[6:8])
-
-    first = date(year, month, day)
+def get_dates_range(first_date):
+    first = make_date_from(first_date)
 
     now = datetime.now()
     today = date(now.year, now.month, now.day)
@@ -134,6 +141,47 @@ def get_dates_range(firstDate):
 
     return days
 
+def get_days_using(first_date, last_date):
+    first = make_date_from(first_date)
+    last = make_date_from(last_date)
+
+    delta = last-first
+    return delta.days
+
+def get_month_range(first_date, last_date):
+    first = make_date_from(first_date)
+    last = make_date_from(last_date)
+
+    months = []
+    cursor = last
+
+    months.append(cursor)
+
+    while cursor >= first:
+        cursor = cursor - relativedelta(months=1)
+        months.append(cursor)
+
+    return months
+
+def make_date_from(yyyymmdd):
+    year = int(yyyymmdd[0:4])
+    month = int(yyyymmdd[4:6])
+    day = int(yyyymmdd[6:8])
+
+    return date(year, month, day)
+
+def make_summary(object, lookup):
+    return "%s for %.1f km, taking %i minutes" % (lookup[object['activity']], 
+            float(object['distance'])/1000, float(object['duration'])/60)
+
+def make_summaries(day):
+    returned = {}
+    lookup = {'wlk': 'Walked', 'run': 'ran', 'cyc': 'cycled'}
+
+    for summary in day['summary']:
+        returned[summary['activity']] = make_summary(summary, lookup)
+
+    return returned
 
 def geojson_move(segment):
     features = []
@@ -150,9 +198,7 @@ def geojson_move(segment):
 
         # add a name and description
         geojson['properties']['name'] = lookup[activity['activity']]
-        description = "%s for %.1f km, taking %i minutes" % (lookup[activity['activity']], 
-                        float(activity['distance'])/1000, float(activity['duration'])/60)
-        geojson['properties']['description'] = description
+        geojson['properties']['description'] = make_summary(activity, lookup)
         
         features.append(geojson)
 

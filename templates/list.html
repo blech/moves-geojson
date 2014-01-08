@@ -2,17 +2,27 @@
 {% block title %}moves.husk.org. days.{% endblock %}
 {% block style %}
     h1 { background-image: url(/static/whitebg50pc.png); padding: 10px; opacity: 1; display: inline; position: relative; left: -10px; }
+    h2 { padding: 10px 0px; }
+    td.summary { width: 40em; }
 {% endblock %}
 {% block content %}    
   <div id="content">
 
-    <p>Hi. You've been using Moves for {{ days|count }} days. (Click on a date to see a map.)</p>
+    <p>Hi. You've been using Moves for {{ days }} days. (Click on a date to see a map.)</p>
     
-    <table>{% for day in days %}
+    <table>{% for day in summary %}
         <tr>
-            <td><a href="/map/{{ day.strftime('%Y-%m-%d') }}" class="big" title="{{ day.strftime('%A') }}">{{ day.strftime('%e %B %Y') }}</a></td>
-            <td><a href="/geojson/{{ day.strftime('%Y-%m-%d') }}">download GeoJSON</a></li></td>
+            <td><a href="/map/{{ day.dateObj.strftime('%Y-%m-%d') }}" class="big" 
+                   title="{{ day.dateObj.strftime('%A') }}">{{ day.dateObj.strftime('%e %B %Y') }}</a></td>
+            <td class="summary">{{ day.summary.wlk }}{% if day.summary.run %}; {{ day.summary.run }}{% endif %}{% if day.summary.cyc %}; {{ day.summary.cyc }}{% endif %}</td>
+            <td><a href="/geojson/{{ day.dateObj.strftime('%Y-%m-%d') }}">download GeoJSON</a></li></td>
     {% endfor %}</table>
+
+    <h2>Previous months</h2>
+    
+    <p>{% for month in months %}
+        <a href="/list/{{ month.strftime('%Y-%m') }}" class="big">{{ month.strftime('%B %Y') }}</a><br>
+    {% endfor %}</ul>
 
   </div>
 {% endblock %}
