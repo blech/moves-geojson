@@ -29,22 +29,6 @@
 
     var hash = new L.Hash(map);
 
-    var walk = {
-        "color": "#00d45a",
-        "weight": 2.5,
-        "opacity": 1,
-    };
-    var run = {
-        "color": "#93139a",
-        "weight": 2.5,
-        "opacity": 1,
-    };
-    var transport = {
-        "color": "#d0d0d0",
-        "weight": 2.5,
-        "opacity": 0.75,
-    };
-
     $.getJSON($('link[rel="geojson"]').attr("href"), function(data) {
         var geojson = L.geoJson(data, {
             onEachFeature: function (feature, layer) {
@@ -54,6 +38,7 @@
                 switch (feature.properties.activity) {
                     case 'wlk': return {color: "#00d45a", weight: 3, opacity: 1};
                     case 'run': return {color: "#93139a", weight: 3, opacity: 1};
+                    case 'cyc': return {color: "#00ceef", weight: 3, opacity: 1};
                     case 'trp': return {color: "#000000", weight: 3, opacity: 0.4};
                 }
             }
