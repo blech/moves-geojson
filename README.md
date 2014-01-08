@@ -14,7 +14,7 @@ set up environment variables. I did this by
 
 * generating an app_secret: from a Python shell, `import os; os.urandom(24)`
 * getting the client variables from the Moves [developer site](https://dev.moves-app.com/apps/)
-* pushing the variables into my shell with ``export `cat .env```
+* pushing the variables into my shell with ``export `cat .env` ``
 
 For the Python packages, you'll need to run:
 
