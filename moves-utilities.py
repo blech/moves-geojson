@@ -1,5 +1,6 @@
 import os
 from datetime import date, datetime, timedelta
+from functools import wraps
 from json import dumps
 
 import memcache
@@ -51,10 +52,8 @@ def logout():
     return redirect(url_for('index'))
 
 @app.route('/list')
+@require_token
 def list():
-    if 'token' not in session:
-        return redirect(url_for('index'))
-
     profile = get_profile(access_token=session['token'])
 
     summary = Moves.user_summary_daily(pastDays=30, access_token=session['token'])
@@ -70,10 +69,8 @@ def list():
     return render_template("list.html", profile=profile, summary=summary, months=months, days=using_for)
 
 @app.route('/list/<month>')
+@require_token
 def month(month):
-    if 'token' not in session:
-        return redirect(url_for('index'))
-
     profile = get_profile(access_token=session['token'])
 
     summary = Moves.user_summary_daily(month, access_token=session['token'])
@@ -88,18 +85,14 @@ def month(month):
     return render_template("month.html", profile=profile, summary=summary, months=months)
 
 @app.route("/map/<date>")
+@require_token
 def map(date):
-    if 'token' not in session:
-        return redirect(url_for('index'))
-
     # TODO validate date
     return render_template("map.html", date=date)
 
 @app.route("/geojson/<date>")
+@require_token
 def geojson(date):
-    if 'token' not in session:
-        return redirect(url_for('index'))
-
     # TODO validate date
     api_date = date.replace('-', '')
     info = Moves.user_storyline_daily(api_date, trackPoints={'true'}, access_token=session['token'])
@@ -121,10 +114,8 @@ def geojson(date):
     return Response(dumps(geojson), headers=headers, content_type='application/geo+json')
 
 @app.route("/info")
+@require_token
 def show_info():
-    if 'token' not in session:
-        return redirect(url_for('index'))
-
     profile = get_profile(access_token=session['token'])
     response = 'User ID: %s<br />First day using Moves: %s' % \
         (profile['userId'], profile['profile']['firstDate'])
@@ -132,6 +123,7 @@ def show_info():
         "<br /><a href=\"%s\">Logout</a>" % url_for('logout')
 
 @app.route("/test")
+@require_token
 def show_test():
     if 'token' not in session:
         return redirect(url_for('index'))
@@ -154,7 +146,7 @@ def get_profile(access_token):
 def get_dates_range(first_date):
     first = make_date_from(first_date)
 
-    now = datetime.now()
+    now = datetime.utcnow() // TODO use profile TZ?
     today = date(now.year, now.month, now.day)
 
     days = []
@@ -168,7 +160,7 @@ def get_dates_range(first_date):
 
 def get_days_using(first_date):
     first = make_date_from(first_date)
-    now = datetime.now().date()
+    now = datetime.utcnow().date()
 
     delta = now-first
     return delta.days
@@ -178,7 +170,7 @@ def get_month_range(first_date, last_date=None, excluding=None):
     if last_date:
         last = make_date_from(last_date)
     else:
-        last = datetime.now().date()
+        last = datetime.utcnow().date()
 
     if excluding:
         (x_year, x_month) = excluding.split('-')
@@ -242,6 +234,15 @@ def geojson_move(segment):
 
     return features
 
+
+### decorator
+def require_token(func):
+    @wraps(func)
+    def decorated(*args, **kwargs):
+        if 'token' not in session:
+            return redirect(url_for('index'))
+        return func(*args, **kwargs)
+    return decorated
 
 ### error handlers
 @app.errorhandler(404)
