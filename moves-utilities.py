@@ -18,7 +18,7 @@ client_secret = os.environ['client_secret']
 
 Moves = MovesClient(client_id, client_secret)
 
-# mc = memcache.Client(['127.0.0.1:11211'], debug=0)
+mc = memcache.Client(['127.0.0.1:11211'], debug=0)
 
 ### main methods
 
@@ -57,7 +57,7 @@ def list():
     if 'token' not in session:
         return redirect(url_for('index'))
 
-    profile = Moves.user_profile(access_token=session['token'])
+    profile = get_profile(access_token=session['token'])
 
     summary = Moves.user_summary_daily(pastDays=30, access_token=session['token'])
     summary.reverse()
@@ -66,10 +66,28 @@ def list():
         day['dateObj'] = make_date_from(day['date'])
         day['summary'] = make_summaries(day)
 
-    using_for = get_days_using(profile['profile']['firstDate'], summary[-1]['date'])
-    months = get_month_range(profile['profile']['firstDate'], summary[-1]['date'])
+    using_for = get_days_using(profile['profile']['firstDate'])
+    months = get_month_range(profile['profile']['firstDate'], last_date=summary[-1]['date'])
 
     return render_template("list.html", profile=profile, summary=summary, months=months, days=using_for)
+
+@app.route('/list/<month>')
+def month(month):
+    if 'token' not in session:
+        return redirect(url_for('index'))
+
+    profile = get_profile(access_token=session['token'])
+
+    summary = Moves.user_summary_daily(month, access_token=session['token'])
+    summary.reverse()
+
+    for day in summary:
+        day['dateObj'] = make_date_from(day['date'])
+        day['summary'] = make_summaries(day)
+
+    months = get_month_range(profile['profile']['firstDate'], excluding=month)
+
+    return render_template("month.html", profile=profile, summary=summary, months=months)
 
 @app.route("/map/<date>")
 def map(date):
@@ -109,7 +127,7 @@ def show_info():
     if 'token' not in session:
         return redirect(url_for('index'))
 
-    profile = Moves.user_profile(access_token=session['token'])
+    profile = get_profile(access_token=session['token'])
     response = 'User ID: %s<br />First day using Moves: %s' % \
         (profile['userId'], profile['profile']['firstDate'])
     return response + "<br /><a href=\"%s\">Info for today</a>" % url_for('map') + \
@@ -120,8 +138,17 @@ def show_test():
     if 'token' not in session:
         return redirect(url_for('index'))
 
-
+    summary = Moves.user_summary_daily('2014-01', access_token=session['token'])
     return "%r" % summary
+
+
+### moves wrappers
+def get_profile(access_token):
+    profile = mc.get(str(access_token))
+    if not profile:
+        profile = Moves.user_profile(access_token=access_token)
+        mc.set(str(access_token), profile, time=86400)
+    return profile
 
 
 ### utilities
@@ -141,25 +168,35 @@ def get_dates_range(first_date):
 
     return days
 
-def get_days_using(first_date, last_date):
+def get_days_using(first_date):
     first = make_date_from(first_date)
-    last = make_date_from(last_date)
+    now = datetime.now().date()
 
-    delta = last-first
+    delta = now-first
     return delta.days
 
-def get_month_range(first_date, last_date):
+def get_month_range(first_date, last_date=None, excluding=None):
     first = make_date_from(first_date)
-    last = make_date_from(last_date)
+    if last_date:
+        last = make_date_from(last_date)
+    else:
+        last = datetime.now().date()
+
+    if excluding:
+        (x_year, x_month) = excluding.split('-')
+    else:
+        x_year = x_month = "0"
 
     months = []
     cursor = last
 
-    months.append(cursor)
+    if not(cursor.year == int(x_year) and cursor.month == int(x_month)):
+        months.append(cursor)
 
     while cursor >= first:
         cursor = cursor - relativedelta(months=1)
-        months.append(cursor)
+        if not(cursor.year == int(x_year) and cursor.month == int(x_month)):
+            months.append(cursor)
 
     return months
 
@@ -177,6 +214,9 @@ def make_summary(object, lookup):
 def make_summaries(day):
     returned = {}
     lookup = {'wlk': 'Walked', 'run': 'ran', 'cyc': 'cycled'}
+
+    if not day['summary']:
+        return {'wlk': 'No activity'}
 
     for summary in day['summary']:
         returned[summary['activity']] = make_summary(summary, lookup)
