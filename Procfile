@@ -1,1 +1,1 @@
-web: gunicorn moves-geojson:app
+web: gunicorn moves-utilities:app
