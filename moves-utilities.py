@@ -1,13 +1,11 @@
 import os
-
 from datetime import date, datetime, timedelta
 from json import dumps
 
+import memcache
 from dateutil.relativedelta import relativedelta
 from flask import Flask, Response, redirect, render_template, request, session, url_for
 from moves import MovesClient
-
-import memcache
 
 app = Flask(__name__)
 
