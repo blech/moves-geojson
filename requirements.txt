@@ -5,6 +5,8 @@ MarkupSafe==0.18
 Werkzeug==0.9.4
 itsdangerous==0.23
 python-memcached==1.53
+python-dateutil==2.2
+six==1.5.2
 requests==2.1.0
 wsgiref==0.1.2
 ./moves
