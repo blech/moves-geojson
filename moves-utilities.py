@@ -19,6 +19,16 @@ Moves = MovesClient(client_id, client_secret)
 
 mc = memcache.Client(['127.0.0.1:11211'], debug=0)
 
+### decorator
+def require_token(func):
+    @wraps(func)
+    def decorated(*args, **kwargs):
+        if 'token' not in session:
+            return redirect(url_for('index'))
+        return func(*args, **kwargs)
+    return decorated
+
+
 ### main methods
 
 @app.route("/")
@@ -146,7 +156,7 @@ def get_profile(access_token):
 def get_dates_range(first_date):
     first = make_date_from(first_date)
 
-    now = datetime.utcnow() // TODO use profile TZ?
+    now = datetime.utcnow() # TODO use profile TZ?
     today = date(now.year, now.month, now.day)
 
     days = []
@@ -234,15 +244,6 @@ def geojson_move(segment):
 
     return features
 
-
-### decorator
-def require_token(func):
-    @wraps(func)
-    def decorated(*args, **kwargs):
-        if 'token' not in session:
-            return redirect(url_for('index'))
-        return func(*args, **kwargs)
-    return decorated
 
 ### error handlers
 @app.errorhandler(404)
