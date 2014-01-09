@@ -111,8 +111,7 @@ def geojson(date):
 
     for segment in info[0]['segments']:
         if segment['type'] == 'place':
-            # features.append(geojson_place(segment)
-            pass
+            features.append(geojson_place(segment))
         elif segment['type'] == 'move':
             features.extend(geojson_move(segment))
 
@@ -135,11 +134,8 @@ def show_info():
 @app.route("/test")
 @require_token
 def show_test():
-    if 'token' not in session:
-        return redirect(url_for('index'))
-
-    summary = Moves.user_summary_daily('2014-01', access_token=session['token'])
-    return "%r" % summary
+    info = Moves.user_storyline_daily('20131231', trackPoints={'true'}, access_token=session['token'])
+    return "%r" % info
 
 
 ### moves wrappers
@@ -222,6 +218,24 @@ def make_summaries(day):
         returned[summary['activity']] = make_summary(summary, lookup)
 
     return returned
+
+
+def geojson_place(segment):
+    feature = {'type': 'Feature', 'geometry': {}, 'properties': {}}
+
+    coordinates = [segment['place']['location']['lon'], segment['place']['location']['lat']]
+    feature['geometry'] = {"type": "Point", "coordinates": coordinates}
+
+    for key in segment.keys():
+        feature['properties'][key] = segment[key]
+
+    # make a nice duration number as well
+    start = datetime.strptime(segment['startTime'], '%Y%m%dT%H%M%SZ')
+    end = datetime.strptime(segment['endTime'], '%Y%m%dT%H%M%SZ')
+    duration = end-start
+    feature['properties']['duration'] = duration.seconds
+
+    return feature
 
 def geojson_move(segment):
     features = []
