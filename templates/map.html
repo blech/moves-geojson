@@ -7,11 +7,11 @@
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
 
     <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
-    <script src='//api.tiles.mapbox.com/mapbox.js/v1.5.0/mapbox.js'></script>
+    <script src='//api.tiles.mapbox.com/mapbox.js/v1.6.0/mapbox.js'></script>
     <!-- https://github.com/mlevans/leaflet-hash -->
     <script src='/static/leaflet-hash.js'></script>
 
-    <link href='//api.tiles.mapbox.com/mapbox.js/v1.5.0/mapbox.css' rel='stylesheet' />
+    <link href='//api.tiles.mapbox.com/mapbox.js/v1.6.0/mapbox.css' rel='stylesheet' />
 
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
     <link href="/geojson/{{ date }}" rel="geojson" type="application/json">
@@ -25,26 +25,13 @@
 <div id='map'></div>
 <script>
     var map = L.mapbox.map('map', 'paulmison.gofl3m15')
-               .setView([37.7463, -122.4384], 13);
+               .setView([0, 0], 2);
 
     var hash = new L.Hash(map);
 
     $.getJSON($('link[rel="geojson"]').attr("href"), function(data) {
-        var geojson = L.geoJson(data, {
-            onEachFeature: function (feature, layer) {
-              layer.bindPopup(feature.properties.description);
-            },
-            style: function(feature) {
-                switch (feature.properties.activity) {
-                    case 'wlk': return {color: "#00d45a", weight: 3, opacity: 1};
-                    case 'run': return {color: "#93139a", weight: 3, opacity: 1};
-                    case 'cyc': return {color: "#00ceef", weight: 3, opacity: 1};
-                    case 'trp': return {color: "#000000", weight: 3, opacity: 0.4};
-                }
-            }
-        });
-        map.fitBounds(geojson.getBounds());
-        geojson.addTo(map);
+        var markerLayer = L.mapbox.markerLayer().setGeoJSON(data).addTo(map);
+        map.fitBounds(markerLayer.getBounds());
     });
   
 </script>
