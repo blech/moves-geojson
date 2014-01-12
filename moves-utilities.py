@@ -235,9 +235,25 @@ def geojson_place(segment):
     duration = end-start
     feature['properties']['duration'] = duration.seconds
 
+    # name and description
+    if 'name' in segment['place']:
+        feature['properties']['title'] = segment['place']['name']
+    else:
+        feature['properties']['title'] = "Unknown"
+
+    if 'foursquareId' in segment['place']:
+        feature['properties']['url'] = "https://foursquare.com/v/"+segment['place']['foursquareId']
+
     # styling
-    feature['properties']['marker-symbol'] = 'bus'
-    feature['properties']['marker-size'] = 'large'
+    feature['properties']['icon'] = {
+        "iconUrl": "/static/images/circle-stroked-24.svg",
+        "iconSize": [24, 24],
+        "iconAnchor": [12, 12],
+        "popupAnchor": [0, -12]
+    }
+
+#     feature['properties']['marker-symbol'] = 'circle-stroked'
+#     feature['properties']['marker-size'] = 'large'
 
     return feature
 
@@ -245,7 +261,6 @@ def geojson_move(segment):
     features = []
     lookup = {'wlk': 'Walking', 'trp': 'Transport', 'run': 'Running', 'cyc': 'Cycling'}
     stroke = {'wlk': '#00d45a', 'trp': '#000000', 'run': '#93139a', 'cyc': '#00ceef'}
-    opacity = {'trp': 0.4}
 
     for activity in segment['activities']:
         trackpoints = activity['trackPoints']
@@ -256,15 +271,14 @@ def geojson_move(segment):
             if key != 'trackPoints':
                 geojson['properties'][key] = activity[key]
 
-        # add a name and description
-        geojson['properties']['name'] = lookup[activity['activity']]
+        # add a description
         geojson['properties']['description'] = make_summary(activity, lookup)
 
         # add styling
         geojson['properties']['stroke'] = stroke[activity['activity']]
         geojson['properties']['stroke-width'] = 3
         if activity['activity'] == 'trp':
-            geojson['properties']['stroke-opacity'] = 0.4
+            geojson['properties']['stroke-opacity'] = 0.1
         
         features.append(geojson)
 
