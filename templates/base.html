@@ -4,13 +4,14 @@
   <meta content="text/html; charset=utf-8" http-equiv="content-type" />
 
   <title>{% block title %}{% endblock %}</title>
-  <link href="/static/collected.css" media="screen" type="text/css" rel="stylesheet" />
   <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
 
   <meta name="author" content="Paul Mison" />
   <meta name="description" content="Paul Mison, elsewhere." />
   <meta name="keywords" content="" />
   <meta name="viewport" content="width=640">
+
+{% block head %}{% endblock %}
 
   <style type="text/css">
     body { height: 100%; }
@@ -22,6 +23,7 @@
     .box { display: block; width: 13em; float: left; vertical-align:bottom; }
     .logout { color: #999; }
     .clear { clear: both; }
+    h1 { z-index: 2; }
 {% block style %}{% endblock %}
   </style>
 
