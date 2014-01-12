@@ -6,7 +6,7 @@ from json import dumps
 import memcache
 from dateutil.relativedelta import relativedelta
 from flask import Flask, Response, redirect, render_template, request, session, url_for
-from moves import MovesClient
+from moves import MovesClient, MovesAPIError
 
 app = Flask(__name__)
 
@@ -97,15 +97,17 @@ def month(month):
 @app.route("/map/<date>")
 @require_token
 def map(date):
-    # TODO validate date
+    api_date = date.replace('-', '')
+    validate_date(api_date)
     return render_template("map.html", date=date)
 
 @app.route("/geojson/<date>")
 @require_token
 def geojson(date):
-    # TODO validate date
     api_date = date.replace('-', '')
-    info = Moves.user_storyline_daily(api_date, trackPoints={'true'}, access_token=session['token'])
+    validate_date(api_date)
+    
+    info = get_storyline(access_token=session['token'], date=api_date)
 
     features = []
 
@@ -146,8 +148,38 @@ def get_profile(access_token):
         mc.set(str(access_token), profile, time=86400)
     return profile
 
+def get_storyline(access_token, date):
+    profile = get_profile(access_token)
+    key = ":".join((str(profile['userId']), date))
+
+    storyline = mc.get(key)
+    if not storyline:
+        info = Moves.user_storyline_daily(date, trackPoints={'true'}, access_token=session['token'])
+        # only cache if it's earlier than today, since today is changing
+        # TODO figure out utcnow implications / use profile offset
+        if date < datetime.now().strftime("%Y%m%d"):
+            mc.set(key, time=86400)
+    return storyline
 
 ### utilities
+
+def validate_date(date):
+    try:
+        date_obj = make_date_from(date)
+    except Exception, e:
+        raise Exception("Date is not in the valid format: %s" % e)
+
+    # TODO use profile, figure out timezones
+    # until then, let's let Moves figure it out
+    # if date_obj > datetime.now().date():
+    #     raise Exception("Date is in the future")
+
+def make_date_from(yyyymmdd):
+    year = int(yyyymmdd[0:4])
+    month = int(yyyymmdd[4:6])
+    day = int(yyyymmdd[6:8])
+
+    return date(year, month, day)
 
 def get_dates_range(first_date):
     first = make_date_from(first_date)
@@ -195,13 +227,6 @@ def get_month_range(first_date, last_date=None, excluding=None):
             months.append(cursor)
 
     return months
-
-def make_date_from(yyyymmdd):
-    year = int(yyyymmdd[0:4])
-    month = int(yyyymmdd[4:6])
-    day = int(yyyymmdd[6:8])
-
-    return date(year, month, day)
 
 def make_summary(object, lookup):
     return "%s for %.1f km, taking %i minutes" % (lookup[object['activity']], 
@@ -252,9 +277,6 @@ def geojson_place(segment):
         "popupAnchor": [0, -12]
     }
 
-#     feature['properties']['marker-symbol'] = 'circle-stroked'
-#     feature['properties']['marker-size'] = 'large'
-
     return feature
 
 def geojson_move(segment):
@@ -293,6 +315,22 @@ def page_not_found(e):
 @app.errorhandler(500)
 def internal_error(e):
     return render_template('500.html'), 500
+
+def handle_exception(e):
+    # handle TwitterHTTPError
+    # TODO use type() matching not duck typing, maybe?
+    if type(e) == MovesAPIError:
+        if e[1]:
+            error = eval(e[1])['error']
+        else:
+            error = e
+        print "Handled Moves API error. Details: %r" % e
+        return render_template('500.html', error=error, type='moves'), 500
+
+    print "Handled other exception %s: %r" % (type(e), e)
+    return render_template('500.html', error=e, type="other"), 500
+
+app.handle_exception = handle_exception
 
 
 if __name__ == "__main__":

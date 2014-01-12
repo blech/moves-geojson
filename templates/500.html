@@ -8,11 +8,11 @@
     <h2>500 server error</h2>
 
     <div id="blurb">
-        {% if type == "moves" %}
+{% if type == "moves" %}
         <p>There was a problem with Moves. They said: '{{ error }}'.<br>
-        {% else %}
-        <p>Something has gone slightly amiss in the guts of this application. Sorry about that.<br>
-        {% endif %}
+{% else %}
+        <p>There was an error: {{ error }}<br>
+{% endif %}
             Go <a href="/">home</a>.</p>
     </div>
   </div>
