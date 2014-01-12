@@ -6,4 +6,7 @@
 /bin/
 /include/
 /lib/
-
+/share/
+/src/
+# Python
+*.pyc
