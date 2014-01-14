@@ -81,10 +81,18 @@ def list():
 @app.route('/list/<month>')
 @require_token
 def month(month):
+    if '-' in month:
+        (y, m) = month.split('-')
+    else:
+        (y, m) = (month[0:4], month[4:6])
+
+    dateobj = make_date_from("%s%s01" % (y, m))
+    month = dateobj.strftime("%Y-%m")
+
     profile = get_profile(access_token=session['token'])
 
-    summary = Moves.user_summary_daily(month, access_token=session['token'])
-    summary.reverse()
+    summary = get_summary_month(access_token=session['token'], month=month)
+    summary.reverse() # TODO sort by activity (activities?) do we need sort(summary, by)?
 
     for day in summary:
         day['dateObj'] = make_date_from(day['date'])
@@ -150,7 +158,7 @@ def get_profile(access_token):
 
 def get_storyline(access_token, date):
     profile = get_profile(access_token)
-    key = ":".join((str(profile['userId']), date))
+    key = ":".join((str(profile['userId']), str(date)))
 
     storyline = mc.get(key)
     if not storyline:
@@ -158,8 +166,20 @@ def get_storyline(access_token, date):
         # only cache if it's earlier than today, since today is changing
         # TODO figure out utcnow implications / use profile offset
         if date < datetime.now().strftime("%Y%m%d"):
-            mc.set(key, time=86400)
+            mc.set(key, storyline, time=86400)
+
     return storyline
+
+def get_summary_month(access_token, month):
+    profile = get_profile(access_token)
+    key = ":".join((str(profile['userId']), str(month)))
+
+    summary = mc.get(key)
+    if not summary:
+        summary = Moves.user_summary_daily(month, access_token=session['token'])
+        mc.set(key, summary, time=86400)
+
+    return summary
 
 ### utilities
 
@@ -330,7 +350,8 @@ def handle_exception(e):
     print "Handled other exception %s: %r" % (type(e), e)
     return render_template('500.html', error=e, type="other"), 500
 
-app.handle_exception = handle_exception
+if app.debug:
+    app.handle_exception = handle_exception
 
 
 if __name__ == "__main__":
