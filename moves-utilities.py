@@ -162,7 +162,7 @@ def get_storyline(access_token, date):
 
     storyline = mc.get(key)
     if not storyline:
-        info = Moves.user_storyline_daily(date, trackPoints={'true'}, access_token=session['token'])
+        storyline = Moves.user_storyline_daily(date, trackPoints={'true'}, access_token=access_token)
         # only cache if it's earlier than today, since today is changing
         # TODO figure out utcnow implications / use profile offset
         if date < datetime.now().strftime("%Y%m%d"):
@@ -176,7 +176,7 @@ def get_summary_month(access_token, month):
 
     summary = mc.get(key)
     if not summary:
-        summary = Moves.user_summary_daily(month, access_token=session['token'])
+        summary = Moves.user_summary_daily(month, access_token=access_token)
         mc.set(key, summary, time=86400)
 
     return summary
@@ -332,9 +332,9 @@ def geojson_move(segment):
 def page_not_found(e):
     return render_template('404.html'), 404
     
-@app.errorhandler(500)
-def internal_error(e):
-    return render_template('500.html'), 500
+# @app.errorhandler(500)
+# def internal_error(e):
+#     return render_template('500.html'), 500
 
 def handle_exception(e):
     # handle TwitterHTTPError
@@ -350,7 +350,8 @@ def handle_exception(e):
     print "Handled other exception %s: %r" % (type(e), e)
     return render_template('500.html', error=e, type="other"), 500
 
-app.handle_exception = handle_exception
+if app.debug:
+    app.handle_exception = handle_exception
 
 
 if __name__ == "__main__":
