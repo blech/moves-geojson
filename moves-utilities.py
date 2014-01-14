@@ -350,8 +350,7 @@ def handle_exception(e):
     print "Handled other exception %s: %r" % (type(e), e)
     return render_template('500.html', error=e, type="other"), 500
 
-if app.debug:
-    app.handle_exception = handle_exception
+app.handle_exception = handle_exception
 
 
 if __name__ == "__main__":
