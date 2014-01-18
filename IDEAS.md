@@ -8,7 +8,7 @@
 
 ### Geography
 
-- Make sure timestamps are recorded in LineStrings
+- ~~Make sure timestamps are recorded in LineStrings~~
 - Calculate trackpoint speeds not just segment averages (geopy?)
 - Hook up to external elevation service
 

@@ -272,6 +272,7 @@ def geojson_place(segment):
     feature['geometry'] = {"type": "Point", "coordinates": coordinates}
 
     for key in segment.keys():
+        # TODO convert activity?
         feature['properties'][key] = segment[key]
 
     # make a nice duration number as well
@@ -307,14 +308,16 @@ def geojson_move(segment):
     for activity in segment['activities']:
         trackpoints = activity['trackPoints']
         coordinates = [[point['lon'], point['lat']] for point in trackpoints]
+        timestamps = [point['time'] for point in trackpoints]
         geojson = {'type': 'Feature', 'geometry': {}, 'properties': {}}
         geojson['geometry'] = {'type': 'LineString', 'coordinates': coordinates}
         for key in activity.keys():
             if key != 'trackPoints':
                 geojson['properties'][key] = activity[key]
 
-        # add a description
+        # add a description & the saved timestamps
         geojson['properties']['description'] = make_summary(activity, lookup)
+        geojson['properties']['times'] = timestamps
 
         # add styling
         geojson['properties']['stroke'] = stroke[activity['activity']]
