@@ -1,1 +1,1 @@
-web: gunicorn moves-utilities:app
+web: gunicorn moves_utilities:app
