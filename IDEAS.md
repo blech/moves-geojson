@@ -16,6 +16,7 @@
 
 - Display multiple days on map
   - useful if we have all the export cached (and vice versa)
+- Cycle through activities (like the app, cough)
 
 ### Cross-service
 
@@ -32,7 +33,7 @@
 - Sort lists by most active day
 - Charts (how to make them interesting though)
 
-### Other
+### Other
 
 - Ask people who actually work out what they want
 - Ditto cyclists
