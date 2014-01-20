@@ -18,6 +18,14 @@
   - useful if we have all the export cached (and vice versa)
 - Cycle through activities (like the app, cough)
 
+### Sharing
+
+- Permanent (ie per user) URLs
+  - only last until Memcache timeout?
+  - require a real DB to record which days are shared?
+- Push GeoJSON to private [gist](http://gist.github.com/)
+- Use gist URL to link to [geojson.io](http://geojson.io/)
+
 ### Cross-service
 
 - last.fm
@@ -28,7 +36,7 @@
 
 - Transport (sums aren't calculated by Moves)
 - Cumulative for month / year
-  - non-calendar months/years
+  - to-date months/years not to-first
   - extrapolations
 - Sort lists by most active day
 - Charts (how to make them interesting though)
