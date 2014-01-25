@@ -1,4 +1,4 @@
-A work in progress to create utilities for [Moves](http://moves-app.com/), an activity 
+exporA work in progress to create utilities for [Moves](http://moves-app.com/), an activity 
 tracker for Android and iOS, including displaying tracks on a web map and GeoJSON export.
 
 ## Hosted
@@ -14,6 +14,7 @@ set up environment variables. I did this by
 
 * generating an app_secret: from a Python shell, `import os; os.urandom(24)`
 * getting the client variables from the Moves [developer site](https://dev.moves-app.com/apps/)
+* adding these to a `.env` file (see `.env-example`)
 * pushing the variables into my shell with ``export `cat .env` ``
 
 For the Python packages, you'll need to run:
@@ -26,4 +27,4 @@ For the Python packages, you'll need to run:
 
 and then you're ready to run the server:
 
-* `python moves-utilities.py`
+* `python moves_utilities.py`
