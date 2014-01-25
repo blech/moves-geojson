@@ -35,7 +35,8 @@
     var hash = new L.Hash(map);
     map.zoomControl.setPosition('topright');
 
-    $.getJSON($('link[rel="geojson"]').attr("href"), function(data) {
+    var draw_geojson = function(data) {
+        console.log("in draw_geojson");
         var markerLayer = L.mapbox.markerLayer()
 
         markerLayer.on('layeradd', function(e) {
@@ -48,8 +49,16 @@
         });
 
         markerLayer.setGeoJSON(data).addTo(map);
-        map.fitBounds(markerLayer.getBounds());
-    });
-  
+        // map.fitBounds(markerLayer.getBounds());
+    };
+
+    $.getJSON($('link[rel="geojson"]').attr("href"), draw_geojson);
+
+    // this works to add on further traces
+    // for (var i = 0; i < 25; i++) {
+    //     geojson = '/geojson/2014-01-'+i
+    //     $.getJSON(geojson, draw_geojson);
+    // }
+
 </script>
 {% endblock %}
