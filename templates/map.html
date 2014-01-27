@@ -49,7 +49,9 @@
         });
 
         markerLayer.setGeoJSON(data).addTo(map);
-        // map.fitBounds(markerLayer.getBounds());
+        // TODO this needs a flag for if it's a new or additional JSON
+        // (calculate bounds of all markerLayers?)
+        map.fitBounds(markerLayer.getBounds());
     };
 
     $.getJSON($('link[rel="geojson"]').attr("href"), draw_geojson);
