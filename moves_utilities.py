@@ -1,4 +1,5 @@
 import os
+from calendar import monthrange
 from datetime import date, datetime, timedelta
 from functools import wraps
 from json import dumps
@@ -34,7 +35,7 @@ def require_token(func):
 @app.route("/")
 def index():
     if 'token' not in session:
-        return render_template("auth.html")
+        return render_template("about.html", auth=True)
 
     return redirect(url_for('list'))
 
@@ -60,6 +61,10 @@ def logout():
     if 'token' in session:
         del(session['token'])
     return redirect(url_for('index'))
+
+@app.route("/about")
+def about():
+    return render_template("about.html", auth=False)
 
 @app.route('/list')
 @require_token
@@ -184,6 +189,7 @@ def get_summary_month(access_token, month):
 ### utilities
 
 def validate_date(date):
+    date = date.replace('-', '')
     try:
         date_obj = make_date_from(date)
     except Exception, e:
@@ -195,6 +201,8 @@ def validate_date(date):
     #     raise Exception("Date is in the future")
 
 def make_date_from(yyyymmdd):
+    yyyymmdd = yyyymmdd.replace('-', '')
+
     year = int(yyyymmdd[0:4])
     month = int(yyyymmdd[4:6])
     day = int(yyyymmdd[6:8])
@@ -224,27 +232,23 @@ def get_days_using(first_date):
     return delta.days
 
 def get_month_range(first_date, last_date=None, excluding=None):
+    months = []
+
     first = make_date_from(first_date)
     if last_date:
-        last = make_date_from(last_date)
+        cursor = make_date_from(last_date)
     else:
-        last = datetime.utcnow().date()
+        cursor = datetime.utcnow().date()
 
     if excluding:
         (x_year, x_month) = excluding.split('-')
     else:
         x_year = x_month = "0"
 
-    months = []
-    cursor = last
-
-    if not(cursor.year == int(x_year) and cursor.month == int(x_month)):
-        months.append(cursor)
-
-    while cursor >= first:
-        cursor = cursor - relativedelta(months=1)
+    while cursor.year > first.year or cursor.month >= first.month:
         if not(cursor.year == int(x_year) and cursor.month == int(x_month)):
             months.append(cursor)
+        cursor = cursor - relativedelta(months=1)
 
     return months
 

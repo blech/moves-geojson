@@ -1,11 +1,13 @@
 {% extends "base.html" %}
-{% block title %}moves.husk.org. hello.{% endblock %}
+{% block title %}moves.husk.org. about.{% endblock %}
 {% block head %}
   <link href="/static/collected.css" media="screen" type="text/css" rel="stylesheet" />
 {% endblock %}
 {% block content %}
   <div id="content">
+    {% if auth %}
     <h2>You need to <a href="/auth">authenticate with Moves</a> to use this site.</h2>
+    {% endif %}
 
     <div id="blurb" style="margin-top:16px; width: 500px; color: #666;">
       <p>This site enables you to export data from the <a href="http://moves-app.com/">Moves</a> 
