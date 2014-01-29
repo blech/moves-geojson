@@ -23,7 +23,7 @@
             <td><a href="/geojson/{{ day.dateObj.strftime('%Y-%m-%d') }}">GeoJSON</a></li></td>
     {% endfor %}</table>
 
-    <h2>Previous months</h2>
+    <h2>Months</h2>
     
     <p>{% for month in months %}
         <a href="/list/{{ month.strftime('%Y-%m') }}" class="big">{{ month.strftime('%B %Y') }}</a><br>

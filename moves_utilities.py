@@ -79,7 +79,7 @@ def list():
         day['summary'] = make_summaries(day)
 
     using_for = get_days_using(profile['profile']['firstDate'])
-    months = get_month_range(profile['profile']['firstDate'], last_date=summary[-1]['date'])
+    months = get_month_range(profile['profile']['firstDate'])
 
     return render_template("list.html", profile=profile, summary=summary, months=months, days=using_for)
 
