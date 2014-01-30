@@ -18,9 +18,9 @@
     <table>{% for day in summary %}
         <tr>
             <td><a href="/map/{{ day.dateObj.strftime('%Y-%m-%d') }}" class="big" 
-                   title="{{ day.dateObj.strftime('%A') }}">{{ day.dateObj.strftime('%e %B %Y') }}</a></td>
+                   title="Map for {{ day.dateObj.strftime('%A') }}, {{ day.dateObj.strftime('%e %B') }}">{{ day.dateObj.strftime('%e %B %Y') }}</a></td>
             <td class="summary">{{ day.summary.wlk }}{% if day.summary.run %}; {{ day.summary.run }}{% endif %}{% if day.summary.cyc %}; {{ day.summary.cyc }}{% endif %}</td>
-            <td><a href="/geojson/{{ day.dateObj.strftime('%Y-%m-%d') }}">GeoJSON</a></li></td>
+            <td><a href="/geojson/{{ day.dateObj.strftime('%Y-%m-%d') }}" title="Download 'moves-{{ day.dateObj.strftime('%Y-%m-%d') }}.geojson'">GeoJSON</a></li></td>
     {% endfor %}</table>
 
     <h2>Months</h2>
