@@ -1,4 +1,6 @@
+import logging
 import os
+import sys
 from calendar import monthrange
 from datetime import date, datetime, timedelta
 from functools import wraps
@@ -10,15 +12,18 @@ from flask import Flask, Response, redirect, render_template, request, session, 
 from moves import MovesClient, MovesAPIError
 
 app = Flask(__name__)
-
 app.secret_key = os.environ['app_secret']
 
 client_id = os.environ['client_id']
 client_secret = os.environ['client_secret']
-
 Moves = MovesClient(client_id, client_secret)
 
 mc = memcache.Client(['127.0.0.1:11211'], debug=0)
+
+logging.basicConfig()
+logging.StreamHandler(sys.stdout)
+logger = logging.getLogger('main')
+logger.setLevel(logging.DEBUG)
 
 ### decorator
 def require_token(func):
@@ -112,6 +117,9 @@ def month(month):
 def map(date):
     api_date = date.replace('-', '')
     validate_date(api_date)
+
+
+
     return render_template("map.html", date=date)
 
 @app.route("/geojson/<date>")
@@ -351,10 +359,12 @@ def handle_exception(e):
             error = eval(e[1])['error']
         else:
             error = e
-        print "Handled Moves API error. Details: %r" % e
+        logger.error("Handled Moves API error. Details: %r" % e)
+        logger.exception(e)
         return render_template('500.html', error=error, type='moves'), 500
 
-    print "Handled other exception %s: %r" % (type(e), e)
+    logger.error("Handled non-Moves exception %s: %r" % (type(e), e))
+    logger.exception(e)
     return render_template('500.html', error=e, type="other"), 500
 
 app.handle_exception = handle_exception
