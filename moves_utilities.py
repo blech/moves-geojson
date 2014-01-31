@@ -215,6 +215,7 @@ def make_date_from(yyyymmdd):
     month = int(yyyymmdd[4:6])
     day = int(yyyymmdd[6:8])
 
+    logging.info(year, month, day)
     return date(year, month, day)
 
 def get_dates_range(first_date):
