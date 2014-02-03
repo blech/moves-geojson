@@ -215,7 +215,7 @@ def make_date_from(yyyymmdd):
     month = int(yyyymmdd[4:6])
     day = int(yyyymmdd[6:8])
 
-    logger.info("%s %s %s" % (year, month, day))
+    # logger.info("%s %s %s" % (year, month, day))
     return date(year, month, day)
 
 def get_dates_range(first_date):
@@ -255,7 +255,7 @@ def get_month_range(first_date, last_date=None, excluding=None):
     while cursor.year > first.year or cursor.month >= first.month and cursor.year >= 2010:
         if not(cursor.year == int(x_year) and cursor.month == int(x_month)):
             months.append(cursor)
-        logger.info("have cursor %s - moving back by 1 month" % cursor)
+        logger.info("have cursor %s, first %s - moving back by 1 month" % (cursor, first))
         cursor = cursor - relativedelta(months=1)
 
     return months
