@@ -221,14 +221,11 @@ def make_date_from(yyyymmdd):
 def get_dates_range(first_date):
     first = make_date_from(first_date)
 
-    now = datetime.utcnow() # TODO use profile TZ?
-    today = date(now.year, now.month, now.day)
-
+    cursor = datetime.utcnow().date() # TODO use profile TZ?
     days = []
-    cursor = today
 
     # there is something badly wrong here
-    while cursor >= first and cursor.year > 1990:
+    while cursor >= first:
         days.append(cursor)
         cursor = cursor - timedelta(days=1)
 
@@ -255,7 +252,7 @@ def get_month_range(first_date, last_date=None, excluding=None):
     else:
         x_year = x_month = "0"
 
-    while cursor.year > first.year or cursor.month >= first.month:
+    while cursor.year > first.year or cursor.month >= first.month and cursor.year >= 2010:
         if not(cursor.year == int(x_year) and cursor.month == int(x_month)):
             months.append(cursor)
         logger.info("have cursor %s - moving back by 1 month" % cursor)
