@@ -226,8 +226,9 @@ def get_dates_range(first_date):
 
     days = []
     cursor = today
-    
-    while cursor >= first:
+
+    # there is something badly wrong here
+    while cursor >= first and cursor.year > 1990:
         days.append(cursor)
         cursor = cursor - timedelta(days=1)
 
