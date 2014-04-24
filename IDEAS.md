@@ -5,6 +5,7 @@
 - Export all as JSON / GeoJSON
   - Background task?
   - preemptively cache?
+  - no longer necessary with Moves own [export](https://accounts.moves-app.com/signin/export)?
 
 ### Geography
 
