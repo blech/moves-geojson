@@ -9,4 +9,4 @@ python-dateutil==2.2
 six==1.5.2
 requests==2.1.0
 wsgiref==0.1.2
-./moves
+moves==0.1
